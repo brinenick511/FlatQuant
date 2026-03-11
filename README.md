@@ -85,6 +85,130 @@ Download models in `./modelzoo`.
 | LLaMA-3.3-70B-Ins | ./modelzoo/meta-llama/Llama-3.3-70B-Instruct | [https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct) |
 | Qwen2.5-7B-Ins | ./modelzoo/Qwen/Qwen2.5-7B-Instruct | [https://huggingface.co/Qwen/Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) |
 | Qwen2.5-32B-Ins | ./modelzoo/Qwen/Qwen2.5-32B-Instruct | [https://huggingface.co/Qwen/Qwen2.5-32B-Instruct](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) |
+
+### Local Notes For Minimal Fake-Quant Validation
+
+The following adjustments were used to validate **fake quantization** for **Qwen2.5** locally on a single RTX 3090:
+
+- Added `./modelzoo/Qwen/Qwen2.5-0.5B-Instruct` as a supported local model path.
+- Fixed Qwen dispatch so local paths containing `Qwen2.5-*` are recognized correctly.
+- Added `--eval_datasets` so perplexity evaluation can be limited to `wikitext2`.
+- Updated `flatquant/data_utils.py` so `wikitext2` can be loaded from either `./datasets/wikitext2`, `./datasets/wikitext`, `/new_data/yanghq/datasets/wikitext2`, or `/new_data/yanghq/datasets/Salesforce/wikitext`.
+- For `wikitext2`, calibration uses the `train` split and PPL evaluation uses the `test` split.
+- Models may live outside the repo, for example under `/new_data/yanghq/models/Qwen/`; keeping `./modelzoo/...` as symlinks is sufficient. Outputs and checkpoints still stay under `./outputs`.
+
+Recommended minimal dataset setup:
+
+- `wikitext2` alone is enough for a minimal fake-quant check if `--cali_dataset wikitext2 --eval_datasets wikitext2` is used.
+- `c4` and `pile` are not required for this path.
+- QA datasets are only needed when `--lm_eval` is enabled.
+
+Environment note:
+
+- The current local fake-quant validation was completed with `torch 2.6.0+cu124`, `transformers 4.45.0`, and `lm-eval 0.4.9.1`.
+- Qwen2.5 works in this newer stack.
+- LLaMA2 and some older LLaMA3 paths may still prefer the older versions listed in `requirements_llama2.txt`, so maintaining a separate compatibility environment for those models may be simpler than forcing one environment to cover all cases.
+
+Minimal validated command:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. conda run -n flatquant python main.py \
+    --model ./modelzoo/Qwen/Qwen2.5-0.5B-Instruct \
+    --cali_dataset wikitext2 --eval_datasets wikitext2 \
+    --w_bits 4 --a_bits 4 \
+    --k_bits 4 --k_asym --k_groupsize 128 \
+    --v_bits 4 --v_asym --v_groupsize 128 \
+    --gptq \
+    --cali_bsz 2 --nsamples 4 --epochs 1 --flat_lr 5e-3 \
+    --lwc --lac --cali_trans --add_diag \
+    --output_dir ./outputs --save_matrix \
+    --deactive_amp --direct_inv
+```
+
+This command completed end-to-end with:
+
+- FlatQuant calibration on all 24 layers
+- GPTQ weight quantization
+- `wikitext2` test-split perplexity evaluation
+
+Observed output artifacts:
+
+- `./outputs/Qwen2.5-0.5B-Instruct/w4a4/exp/flat_parameters.pth`
+- `./outputs/Qwen2.5-0.5B-Instruct/w4a4/exp/flat_matrices.pth`
+- `./outputs/Qwen2.5-0.5B-Instruct/w4a4/exp/log_rank0_*.txt`
+
+Locally verified `wikitext2` PPL for `Qwen2.5-0.5B-Instruct`:
+
+- BF16: `14.2775`
+- W4A4KV4 + FlatQuant + RTN: `86.0572`
+- W4A4KV4 + FlatQuant + GPTQ: `73.6337`
+
+### Local Qwen2.5-7B Session Notes
+
+Local validation for `Qwen2.5-7B-Instruct` used:
+
+- calibration: `wikitext2`
+- evaluation: `wikitext2`
+- calibration precision: `fp32` with `--deactive_amp`
+- compared paths: `BF16`, `W4A4KV4 + RTN`, `W4A4KV4 + GPTQ`
+- practical starting point: `--cali_bsz 2`
+
+Local helper scripts from this session:
+
+- `scripts/watch_qwen25_7b_progress.sh`: compact progress / ETA / GPU usage
+- `scripts/resume_qwen25_7b_gptq_from_flatparams.py`: resume GPTQ calibration from saved FlatQuant parameters
+- `scripts/gptq_resume_ppl_only.py`: rerun GPTQ PPL without recalibration
+- `scripts/finalize_qwen25_7b_results.sh`: run rechecks, generation, summary, and Bark notification
+
+Confirmed local results:
+
+- BF16: `8.353816986083984`, `8.353816986083984`
+- RTN: `8.2615327835083`, `8.2615327835083`
+- GPTQ: `7.944794654846191`, `7.944794654846191`
+
+Example generations for prompt `Write one short sentence about why careful experiments matter in machine learning.`:
+
+- BF16: `Careful experiments are essential in machine learning to ensure models generalize well and avoid overfitting to the training data.`
+- RTN: `Careful experiments are crucial in machine learning as they ensure the models generalize well to unseen data and help identify potential biases or overfitting.`
+- GPTQ: `Careful experiments are crucial in machine learning as they help ensure that the models generalize well to new data and that the results are reliable and reproducible.`
+
+Notes:
+
+- FlatQuant calibration is the expensive stage.
+- Rechecks can reuse saved matrices and avoid recalibration.
+- Final local summary is saved at `./outputs/Qwen2.5-7B-Instruct/final_summary_qwen25_7b.txt`.
+
+### Local LM-Eval Summary (No Recalibration)
+
+This session finished lm-eval checks without re-running FlatQuant calibration:
+
+- minimal check on `Qwen2.5-0.5B-Instruct` (`piqa`)
+- `Qwen2.5-7B-Instruct` on `BF16`, `W4A4KV4 + RTN`, `W4A4KV4 + GPTQ`
+- 6 tasks in total: `piqa`, `hellaswag`, `arc_easy`, `arc_challenge`, `winogrande`, `lambada_openai`
+
+Dataset links used locally:
+
+- `./datasets/hellaswag -> /new_data/yanghq/datasets/Rowan/hellaswag`
+- `./datasets/lambada_openai -> /new_data/yanghq/datasets/EleutherAI/lambada_openai`
+- `./datasets/ai2_arc -> /new_data/yanghq/datasets/allenai/ai2_arc`
+
+`piqa` results:
+
+| Model | Setting | wikitext2 PPL | piqa acc | Log |
+| ----- | ------- | ------------- | -------- | --- |
+| Qwen2.5-0.5B-Instruct | BF16 | 14.2775 | 70.18 | `./outputs/Qwen2.5-0.5B-Instruct/w16a16/lm_eval_piqa_bf16_20260311/log_rank0_20260311_235331.txt` |
+| Qwen2.5-7B-Instruct | BF16 | 8.3538 | 79.82 | `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_piqa_bf16_20260311/log_rank0_20260311_235624.txt` |
+| Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 29.9234 | 73.23 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_rtn_reload_20260311/log_rank0_20260311_235642.txt` |
+| Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 7.9448 | 78.35 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_gptq_reload_20260311/log_rank0_20260311_235659.txt` |
+
+5-task results (`hellaswag`, `arc_easy`, `arc_challenge`, `winogrande`, `lambada_openai`):
+
+| Model | Setting | hellaswag | arc_easy | arc_challenge | winogrande | lambada_openai | acc_avg | Log |
+| ----- | ------- | --------- | -------- | ------------- | ---------- | -------------- | ------- | --- |
+| Qwen2.5-7B-Instruct | BF16 | 79.51 | 76.64 | 51.45 | 69.14 | 67.53 | 68.85 | `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_5tasks_bf16_20260312/log_rank0_20260312_002834.txt` |
+| Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 76.35 | 73.57 | 52.13 | 65.27 | 59.95 | 65.45 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_rtn_reload_20260312/log_rank0_20260312_002847.txt` |
+| Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 78.36 | 77.57 | 54.18 | 68.82 | 66.33 | 69.05 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_gptq_reload_20260312/log_rank0_20260312_002904.txt` |
+
 ## Usage
 
 ### Pre-quantized models in HuggingFace & Real quantization codes and results
