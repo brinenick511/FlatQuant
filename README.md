@@ -263,19 +263,36 @@ All rows report:
 | Qwen2.5-7B-Instruct | BF16 | 8.3538 | 79.82 | 79.51 | 76.64 | 51.45 | 69.14 | 67.53 | 70.68 | 0.00% |
 | Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 28.4840 | 73.23 | 76.35 | 73.57 | 52.13 | 65.27 | 59.95 | 66.75 | -5.56% |
 | Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 7.9448 | 78.35 | 78.36 | 77.57 | 54.18 | 68.82 | 66.33 | 70.60 | -0.11% |
+| Qwen2.5-7B-Instruct | W4A4KV2 + RTN (`reload_matrix`) | 12.1818 | 73.23 | 68.75 | 68.81 | 43.94 | 60.69 | 48.59 | 60.67 | -14.16% |
+| Qwen2.5-7B-Instruct | W4A4KV2 + GPTQ (`reload_matrix`) | 12.0296 | 71.87 | 68.99 | 68.18 | 47.01 | 59.19 | 48.63 | 60.65 | -14.19% |
+| Qwen2.5-7B-Instruct | W4A4KV2 + RTN (fresh) | 9.5760 | 75.79 | 75.42 | 67.51 | 47.95 | 64.96 | 47.20 | 63.14 | -10.67% |
+| Qwen2.5-7B-Instruct | W4A4KV2 + GPTQ (fresh) | 9.3351 | 76.28 | 75.00 | 68.22 | 51.11 | 62.98 | 48.92 | 63.75 | -9.80% |
 | Llama-3.1-8B-Instruct | BF16 | 7.2159 | 81.01 | 79.12 | 79.80 | 55.29 | 74.03 | 73.10 | 73.73 | 0.00% |
 | Llama-3.1-8B-Instruct | W4A4KV4 + RTN | 7.9705 | 79.43 | 76.44 | 77.65 | 52.13 | 71.27 | 70.52 | 71.24 | -3.38% |
 | Llama-3.1-8B-Instruct | W4A4KV4 + GPTQ | 7.9001 | 79.11 | 76.55 | 77.78 | 52.90 | 72.38 | 70.77 | 71.58 | -2.92% |
+| Llama-3.1-8B-Instruct | W4A4KV2 + RTN (`reload_matrix`) | 140.0406 | 54.79 | 34.77 | 35.02 | 22.27 | 51.07 | 6.95 | 34.15 | -53.68% |
+| Llama-3.1-8B-Instruct | W4A4KV2 + GPTQ (`reload_matrix`) | 79.4310 | 59.03 | 39.04 | 40.36 | 23.98 | 51.62 | 11.51 | 37.59 | -49.02% |
+| Llama-3.1-8B-Instruct | W4A4KV2 + RTN (fresh) | 10.2269 | 76.71 | 71.05 | 74.16 | 46.08 | 65.90 | 55.72 | 64.94 | -11.92% |
+| Llama-3.1-8B-Instruct | W4A4KV2 + GPTQ (fresh) | 9.9939 | 77.91 | 71.39 | 73.19 | 46.50 | 65.04 | 55.83 | 64.98 | -11.87% |
 | Qwen3-8B | BF16 | 9.7283 | 77.64 | 74.98 | 80.68 | 56.48 | 68.19 | 64.27 | 70.37 | 0.00% |
 | Qwen3-8B | W4A4KV4 + RTN | 1772.7867 | 50.65 | 26.54 | 26.09 | 24.91 | 48.15 | 0.41 | 29.46 | -58.14% |
 | Qwen3-8B | W4A4KV4 + GPTQ | 10.3680 | 75.52 | 73.16 | 80.01 | 54.95 | 66.69 | 62.27 | 68.77 | -2.27% |
+| Qwen3-8B | W4A4KV2 + RTN (`reload_matrix`) | 2397.8315 | 53.43 | 27.16 | 27.99 | 22.10 | 48.62 | 0.23 | 29.92 | -57.48% |
+| Qwen3-8B | W4A4KV2 + GPTQ (`reload_matrix`) | 1873.0378 | 53.70 | 27.65 | 31.14 | 21.84 | 50.28 | 0.93 | 30.92 | -56.06% |
+| Qwen3-8B | W4A4KV2 + RTN (fresh) | 8428.5830 | 51.36 | 25.52 | 27.44 | 25.17 | 52.33 | 0.00 | 30.30 | -56.94% |
+| Qwen3-8B | W4A4KV2 + GPTQ (fresh) | 11.7667 | 75.24 | 68.89 | 74.41 | 50.17 | 64.40 | 45.66 | 63.13 | -10.29% |
+
+Note: the KV2 `reload_matrix` rows for `Llama-3.1-8B-Instruct` and `Qwen3-8B` reuse the locally available quick-piqa matrices; the KV2 `fresh` rows are full recalibration runs.
 
 Logs used:
 
 - Qwen2.5-7B piqa BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_piqa_bf16_20260311/log_rank0_20260311_235624.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_rtn_reload_20260311/log_rank0_20260311_235642.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_gptq_reload_20260311/log_rank0_20260311_235659.txt`
 - Qwen2.5-7B 5-task BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_5tasks_bf16_20260312/log_rank0_20260312_002834.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_rtn_reload_20260312/log_rank0_20260312_002847.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_gptq_reload_20260312/log_rank0_20260312_002904.txt`
+- Qwen2.5-7B KV2 combined RTN/GPTQ reuse/fresh: `./outputs/Qwen2.5-7B-Instruct/w4a4/qwen25_7b_w4a4kv2_rtn_reuse_combined_20260312_191030/log_rank0_20260312_190945.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/qwen25_7b_w4a4kv2_gptq_reuse_combined_20260312_191030/log_rank0_20260312_190950.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/qwen25_7b_w4a4kv2_rtn_fresh_combined_20260312_191030/log_rank0_20260312_190955.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/qwen25_7b_w4a4kv2_gptq_fresh_combined_20260312_191030/log_rank0_20260312_191002.txt`
 - Llama-3.1-8B combined BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`
+- Llama-3.1-8B KV2 combined RTN/GPTQ reuse/fresh: `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv2_rtn_reuse_combined_20260312_191030/log_rank0_20260312_223722.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv2_gptq_reuse_combined_20260312_191030/log_rank0_20260312_201024.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv2_rtn_fresh_combined_20260312_191030/log_rank0_20260312_211523.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv2_gptq_fresh_combined_20260312_191030/log_rank0_20260312_191009.txt`
 - Qwen3-8B combined BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`
+- Qwen3-8B KV2 combined RTN/GPTQ reuse/fresh: `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv2_rtn_reuse_combined_20260312_191030/log_rank0_20260312_225617.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv2_gptq_reuse_combined_20260312_191030/log_rank0_20260312_222543.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv2_rtn_fresh_combined_20260312_191030/log_rank0_20260312_195511.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv2_gptq_fresh_combined_20260312_191030/log_rank0_20260312_191015.txt`
 
 ## Usage
 
