@@ -263,21 +263,19 @@ All rows report:
 | Qwen2.5-7B-Instruct | BF16 | 8.3538 | 79.82 | 79.51 | 76.64 | 51.45 | 69.14 | 67.53 | 70.68 | 0.00% |
 | Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 28.4840 | 73.23 | 76.35 | 73.57 | 52.13 | 65.27 | 59.95 | 66.75 | -5.56% |
 | Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 7.9448 | 78.35 | 78.36 | 77.57 | 54.18 | 68.82 | 66.33 | 70.60 | -0.11% |
-| Llama-3.1-8B-Instruct | BF16 | 7.2159 | 81.01 | 79.23 | 79.63 | 55.20 | 73.56 | 73.04 | 73.61 | 0.00% |
-| Llama-3.1-8B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 72.0348 | 72.47 | 60.38 | 51.22 | 33.96 | 59.19 | 42.34 | 53.26 | -27.65% |
-| Llama-3.1-8B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 74.5194 | 73.34 | 65.74 | 58.00 | 35.49 | 59.91 | 55.91 | 58.06 | -21.12% |
-| Qwen3-8B | BF16 | 9.7283 | 71.98 | 75.01 | 80.81 | 56.23 | 67.88 | 64.23 | 69.36 | 0.00% |
-| Qwen3-8B | W4A4KV4 + RTN (`reload_matrix`) | 22.7599 | 61.04 | 52.37 | 53.32 | 35.32 | 54.14 | 23.97 | 46.69 | -32.68% |
-| Qwen3-8B | W4A4KV4 + GPTQ (`reload_matrix`) | 16.1893 | 60.50 | 55.50 | 55.30 | 36.69 | 54.30 | 35.28 | 49.59 | -28.49% |
+| Llama-3.1-8B-Instruct | BF16 | 7.2159 | 81.01 | 79.12 | 79.80 | 55.29 | 74.03 | 73.10 | 73.73 | 0.00% |
+| Llama-3.1-8B-Instruct | W4A4KV4 + RTN | 7.9705 | 79.43 | 76.44 | 77.65 | 52.13 | 71.27 | 70.52 | 71.24 | -3.38% |
+| Llama-3.1-8B-Instruct | W4A4KV4 + GPTQ | 7.9001 | 79.11 | 76.55 | 77.78 | 52.90 | 72.38 | 70.77 | 71.58 | -2.92% |
+| Qwen3-8B | BF16 | 9.7283 | 77.64 | 74.98 | 80.68 | 56.48 | 68.19 | 64.27 | 70.37 | 0.00% |
+| Qwen3-8B | W4A4KV4 + RTN | 1772.7867 | 50.65 | 26.54 | 26.09 | 24.91 | 48.15 | 0.41 | 29.46 | -58.14% |
+| Qwen3-8B | W4A4KV4 + GPTQ | 10.3680 | 75.52 | 73.16 | 80.01 | 54.95 | 66.69 | 62.27 | 68.77 | -2.27% |
 
 Logs used:
 
 - Qwen2.5-7B piqa BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_piqa_bf16_20260311/log_rank0_20260311_235624.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_rtn_reload_20260311/log_rank0_20260311_235642.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_gptq_reload_20260311/log_rank0_20260311_235659.txt`
 - Qwen2.5-7B 5-task BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_5tasks_bf16_20260312/log_rank0_20260312_002834.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_rtn_reload_20260312/log_rank0_20260312_002847.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_gptq_reload_20260312/log_rank0_20260312_002904.txt`
-- Llama-3.1-8B piqa BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt`
-- Llama-3.1-8B 5-task BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_5tasks_20260312_rerun/log_rank0_20260312_025125.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_reload_5tasks_20260312/log_rank0_20260312_025125.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_reload_5tasks_20260312_rerun2/log_rank0_20260312_033847.txt`
-- Qwen3-8B piqa BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt`
-- Qwen3-8B 5-task BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_5tasks_20260312_rerun/log_rank0_20260312_025125.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_reload_5tasks_20260312_rerun2/log_rank0_20260312_033754.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_reload_5tasks_20260312_rerun2/log_rank0_20260312_033818.txt`
+- Llama-3.1-8B combined BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`
+- Qwen3-8B combined BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_6tasks_20260312_rerun_full_nosplit/log_rank0_20260312_141751.txt`
 
 ## Usage
 
