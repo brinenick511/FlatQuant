@@ -209,6 +209,76 @@ Dataset links used locally:
 | Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 76.35 | 73.57 | 52.13 | 65.27 | 59.95 | 65.45 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_rtn_reload_20260312/log_rank0_20260312_002847.txt` |
 | Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 78.36 | 77.57 | 54.18 | 68.82 | 66.33 | 69.05 | `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_gptq_reload_20260312/log_rank0_20260312_002904.txt` |
 
+### Local Llama-3.1-8B-Instruct and Qwen3-8B Quick Run (wikitext2 + piqa)
+
+This local run targeted:
+
+- `/new_data/yanghq/models/meta-llama/Llama-3.1-8B-Instruct`
+- `/new_data/yanghq/models/Qwen/Qwen3-8B`
+
+Quick setting used in this section:
+
+- calibration: `wikitext2`
+- PPL eval: `wikitext2`
+- lm-eval task: `piqa` only
+- quantization quick config: `--cali_bsz 2 --nsamples 4 --epochs 1 --deactive_amp`
+
+Local compatibility changes used for this run:
+
+| Item | Change |
+| ---- | ------ |
+| `transformers` | upgraded to `4.51.0` in `flatquant` env for Qwen3 support |
+| model arg | `--model` now accepts absolute/local paths (not only fixed choices) |
+| model dispatch | added Qwen3 branch in `flatquant/model_utils.py` |
+| attention wrappers | updated LLaMA/Qwen FlatQuant attention wrappers for newer HF API (`num_heads` attr fallback, 2-value return, optional `q_norm`/`k_norm`) |
+| calibration & GPTQ forward | pass-through support for `position_embeddings` in `flatquant/train_utils.py` and `gptq_utils.py` |
+
+Results:
+
+| Model | Setting | wikitext2 PPL | piqa acc | Log |
+| ----- | ------- | ------------- | -------- | --- |
+| Llama-3.1-8B-Instruct | BF16 | 7.2159 | 81.01 | `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt` |
+| Llama-3.1-8B-Instruct | W4A4KV4 + RTN (quick) | 11.8753 | 72.47 | `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt` |
+| Llama-3.1-8B-Instruct | W4A4KV4 + GPTQ (quick) | 11.3170 | 73.34 | `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt` |
+| Qwen3-8B | BF16 | 14.7880 | 71.98 | `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt` |
+| Qwen3-8B | W4A4KV4 + RTN (quick) | 32.0726 | 61.04 | `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt` |
+| Qwen3-8B | W4A4KV4 + GPTQ (quick) | 31.0459 | 60.50 | `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt` |
+
+### Local Combined Task Table (wikitext2 + piqa + 5 tasks)
+
+Unified local summary for:
+
+- `Qwen2.5-7B-Instruct`
+- `Llama-3.1-8B-Instruct`
+- `Qwen3-8B`
+
+All rows report:
+
+- `wikitext2` perplexity
+- `piqa`
+- `hellaswag`, `arc_easy`, `arc_challenge`, `winogrande`, `lambada_openai`
+
+| Model | Setting | wikitext2 PPL | piqa | hellaswag | arc_easy | arc_challenge | winogrande | lambada_openai | acc_avg (6 tasks) | delta vs BF16 |
+| ----- | ------- | ------------- | ---- | --------- | -------- | ------------- | ---------- | -------------- | ----------------- | ------------- |
+| Qwen2.5-7B-Instruct | BF16 | 8.3538 | 79.82 | 79.51 | 76.64 | 51.45 | 69.14 | 67.53 | 70.68 | 0.00% |
+| Qwen2.5-7B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 28.4840 | 73.23 | 76.35 | 73.57 | 52.13 | 65.27 | 59.95 | 66.75 | -5.56% |
+| Qwen2.5-7B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 7.9448 | 78.35 | 78.36 | 77.57 | 54.18 | 68.82 | 66.33 | 70.60 | -0.11% |
+| Llama-3.1-8B-Instruct | BF16 | 7.2159 | 81.01 | 79.23 | 79.63 | 55.20 | 73.56 | 73.04 | 73.61 | 0.00% |
+| Llama-3.1-8B-Instruct | W4A4KV4 + RTN (`reload_matrix`) | 72.0348 | 72.47 | 60.38 | 51.22 | 33.96 | 59.19 | 42.34 | 53.26 | -27.65% |
+| Llama-3.1-8B-Instruct | W4A4KV4 + GPTQ (`reload_matrix`) | 74.5194 | 73.34 | 65.74 | 58.00 | 35.49 | 59.91 | 55.91 | 58.06 | -21.12% |
+| Qwen3-8B | BF16 | 9.7283 | 71.98 | 75.01 | 80.81 | 56.23 | 67.88 | 64.23 | 69.36 | 0.00% |
+| Qwen3-8B | W4A4KV4 + RTN (`reload_matrix`) | 22.7599 | 61.04 | 52.37 | 53.32 | 35.32 | 54.14 | 23.97 | 46.69 | -32.68% |
+| Qwen3-8B | W4A4KV4 + GPTQ (`reload_matrix`) | 16.1893 | 60.50 | 55.50 | 55.30 | 36.69 | 54.30 | 35.28 | 49.59 | -28.49% |
+
+Logs used:
+
+- Qwen2.5-7B piqa BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_piqa_bf16_20260311/log_rank0_20260311_235624.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_rtn_reload_20260311/log_rank0_20260311_235642.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_piqa_w4a4kv4_gptq_reload_20260311/log_rank0_20260311_235659.txt`
+- Qwen2.5-7B 5-task BF16/RTN/GPTQ: `./outputs/Qwen2.5-7B-Instruct/w16a16/lm_eval_5tasks_bf16_20260312/log_rank0_20260312_002834.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_rtn_reload_20260312/log_rank0_20260312_002847.txt`, `./outputs/Qwen2.5-7B-Instruct/w4a4/lm_eval_5tasks_w4a4kv4_gptq_reload_20260312/log_rank0_20260312_002904.txt`
+- Llama-3.1-8B piqa BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt`
+- Llama-3.1-8B 5-task BF16/RTN/GPTQ: `./outputs/Llama-3.1-8B-Instruct/w16a16/llama31_8b_bf16_5tasks_20260312_rerun/log_rank0_20260312_025125.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_rtn_reload_5tasks_20260312/log_rank0_20260312_025125.txt`, `./outputs/Llama-3.1-8B-Instruct/w4a4/llama31_8b_w4a4kv4_gptq_reload_5tasks_20260312_rerun2/log_rank0_20260312_033847.txt`
+- Qwen3-8B piqa BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_6tasks_20260312/log_rank0_20260312_015750.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_quick_piqa_20260312/log_rank0_20260312_021708.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_quick_piqa_20260312/log_rank0_20260312_022625.txt`
+- Qwen3-8B 5-task BF16/RTN/GPTQ: `./outputs/Qwen3-8B/w16a16/qwen3_8b_bf16_5tasks_20260312_rerun/log_rank0_20260312_025125.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_rtn_reload_5tasks_20260312_rerun2/log_rank0_20260312_033754.txt`, `./outputs/Qwen3-8B/w4a4/qwen3_8b_w4a4kv4_gptq_reload_5tasks_20260312_rerun2/log_rank0_20260312_033818.txt`
+
 ## Usage
 
 ### Pre-quantized models in HuggingFace & Real quantization codes and results
